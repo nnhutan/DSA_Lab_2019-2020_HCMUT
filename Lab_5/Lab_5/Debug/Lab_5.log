@@ -1,0 +1,6 @@
+﻿  Lab_5.cpp
+C:\Users\nhuta\Desktop\DAS_Lab\Lab_5\Lab_5\Lab_5.cpp(66,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\nhuta\Desktop\DAS_Lab\Lab_5\Lab_5\Lab_5.cpp(53): message : while compiling class template member function 'void AVLTree<int>::printTreeStructure(void)'
+C:\Users\nhuta\Desktop\DAS_Lab\Lab_5\Lab_5\Lab_5.cpp(424): message : see reference to function template instantiation 'void AVLTree<int>::printTreeStructure(void)' being compiled
+C:\Users\nhuta\Desktop\DAS_Lab\Lab_5\Lab_5\Lab_5.cpp(416): message : see reference to class template instantiation 'AVLTree<int>' being compiled
+  Lab_5.vcxproj -> C:\Users\nhuta\Desktop\DAS_Lab\Lab_5\Debug\Lab_5.exe

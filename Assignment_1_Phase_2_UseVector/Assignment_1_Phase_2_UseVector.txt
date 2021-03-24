@@ -1,0 +1,345 @@
+#include <iostream>
+#include<vector>
+#include <string>
+#include<sstream>
+#include<iterator>
+#include<exception>
+#include<iomanip>
+#include <time.h>
+using namespace std;
+
+
+#ifndef BUS_NODE
+#define BUS_NODE
+class Bus
+{
+private:
+	string CODE;
+	string LP;
+	string CASE;
+	int TIMEA;
+	int TIMEB;
+	friend class BusSystem;
+public:
+	Bus()
+	{
+		this->CODE = "";
+		this->LP = "";
+		this->CASE = "";
+		this->TIMEA = 0;
+		this->TIMEB = 0;
+	}
+	Bus(vector<string> Request, size_t nParameter) {
+		this->CODE = Request[1];
+		this->LP = Request[2];
+		this->CASE = (nParameter == 6) ? Request[3] : "0";
+		this->TIMEA = stoi(Request[nParameter - 2]);
+		this->TIMEB = stoi(Request[nParameter - 1]);
+	}
+	~Bus() {}
+};
+#endif
+#ifndef BUS_SYSTEM
+#define BUS_SYSTEM
+class BusSystem
+{
+private:
+	vector<Bus>* BUS;
+	size_t N; //THE MAXIMUM NUMBER OF TRIPS PER ROUTER.
+public:
+	BusSystem()
+	{
+		this->BUS = new vector<Bus>();
+		this->N = 0;
+	}
+	~BusSystem()
+	{
+		this->BUS->clear();
+	}
+	string query(string instruction)
+	{
+		//CREATE A VECTOR "Request" TO STORE REQUEST.
+		vector<string> Request;
+		//PUSH PARAMETERS OF REQUEST TO VECTOR "Request".
+		istringstream str(instruction);
+		while (!str.eof())
+		{
+			string tmp;
+			str >> tmp;
+			if (tmp != "")
+				Request.push_back(tmp);
+		}
+		//CREATE A VARIABLE INT "nParameter" TO STORE THE NUMBER OF PARAMETERS INT THE REQUEST.
+		size_t nParameter = Request.size();
+		size_t nSpaces = count(instruction.begin(), instruction.end(), ' ');
+		//cout << '(' << nParameter << ':' << nSpaces << ')';
+		if (nParameter - 1 != nSpaces) return "-1";
+		//CREATE A VARIABLE STRING "command" TO STORE THE COMMAND OF THE REQUEST.
+		string command = Request[0];
+		//CHECK THE VALIDITY OF THE REQUEST
+		if (command == "SQ") {
+			if (Request[1].find_first_not_of("0123456789") != string::npos || nParameter != 2)
+				return "-1";
+		}
+		else if (command == "INS") {
+			if (Request[1].size() > 5 || Request[2].size() > 10 || nParameter > 6 || Request[nParameter - 2].find_first_not_of("0123456789") != string::npos ||
+				Request[nParameter - 1].find_first_not_of("0123456789") != string::npos || (nParameter == 6 && Request[3] != "1" && Request[3] != "0"))	return "-1";
+		}
+		else if (command == "DEL")
+		{
+			if (Request[1].size() > 5)
+				return "-1";
+			if (nParameter == 3 || nParameter == 4)
+			{
+				if (Request[2].find_first_not_of("0123456789") != string::npos)
+					return "-1";
+				if (nParameter == 4)
+					if (Request[3].find_first_not_of("0123456789") != string::npos)
+						return "-1";
+			}
+		}
+		else if (command == "CS" || command == "CE" || command == "GS" || command == "GE")
+		{
+			if (Request[1].size() > 5 || Request[2].find_first_not_of("0123456789") != string::npos)
+				return "-1";
+			if (nParameter == 4)
+				if (Request[3] != "1" && Request[3] != "0")
+					return "-1";
+		}
+
+		//PERFORM REQUEST
+		//SET THE MAXIMUM NUMBER OF TRIPS PER ROUTER.
+		if (command == "SQ")
+		{
+			this->N = stoi(Request[1]);
+			return "1";
+		}
+
+		//ADD A TRIP TO THE LIST
+		else if (command == "INS")
+		{ //INS 50 50D1-23342 1234 5678
+
+			Bus newbus(Request, nParameter);
+			//cout << "[" << newbus.TIMEA << "]" << endl;
+			//VARIABLE INT "checkN" STORES THE CURRENT TRIP NUMBER OF THE ROUTE WITH CODE <CODE>.
+			size_t checkN = 0;
+			//VARIABLE BOOL "flag" TO CHECK ADDING THE TRIP TO THE LIST.
+			bool flag = 1;
+			for (vector<Bus>::iterator it = this->BUS->begin(); it != this->BUS->end(); it++)
+			{
+				if (newbus.CODE == (*it).CODE)
+					checkN++;
+				if ((newbus.LP == (*it).LP && newbus.TIMEA <= (*it).TIMEB) ||
+					(newbus.LP != (*it).LP && newbus.CODE == (*it).CODE && newbus.TIMEA == (*it).TIMEA))
+					flag = 0;
+			}
+			if (flag == 1 && checkN <= this->N)
+			{
+				this->BUS->push_back(newbus);
+				checkN++;
+				return to_string(checkN);
+			}
+			else
+				return "-1";
+			//cout << "[" << newbus.TIMEB << "]" << endl;
+		}
+
+		//DELETE A TRIP FROM THE LIST.
+		else if (command == "DEL")
+		{
+			//DEL <CODE> [<TIME_A>[<TIME_B>]
+			string CodeDel = Request[1];
+			int TimeDelA = -1, TimeDelB = -1;
+			if (nParameter == 3 || nParameter == 4)
+			{
+				TimeDelA = stoi(Request[2]);
+				if (nParameter == 4)
+					TimeDelB = stoi(Request[3]);
+			}
+			int nTripDele = 0;
+			for (vector<Bus>::iterator it = this->BUS->begin(); it != this->BUS->end(); it++)
+			{
+				if (TimeDelA == -1 && TimeDelB == -1)
+				{
+					if ((*it).CODE == CodeDel)
+					{
+						vector<Bus>::iterator temp = it;
+						it--;
+						BUS->erase(temp);
+						nTripDele++;
+					}
+				}
+				else if (TimeDelA != -1 && TimeDelB == -1)
+				{
+					if ((*it).CODE == CodeDel && (*it).TIMEA == TimeDelA)
+					{
+						vector<Bus>::iterator temp = it;
+						it--;
+						BUS->erase(temp);
+						nTripDele++;
+					}
+				}
+				else if (TimeDelA != -1 && TimeDelB != -1)
+				{
+					if ((*it).CODE == CodeDel && (*it).TIMEA >= TimeDelA && (*it).TIMEB <= TimeDelB)
+					{
+						vector<Bus>::iterator temp = it;
+						it--;
+						BUS->erase(temp);
+						nTripDele++;
+					}
+				}
+			}
+			return to_string(nTripDele);
+
+		}
+
+		//RETURN THE NUMBER OF TRIPS THAT HAVE STARTED BUT HAVE NOT YET ARRIVED AT...
+		//...THE BUS STOP OF THE ROUTE WITH CODE <CODE> AT THE CONSIDERED TIME <TIME>.
+		else if (command == "CS")
+		{
+			//CS <CODE>	<TIME>[<CASE>]
+			string CodeTrip = Request[1];
+			int NowTime = stoi(Request[2]);
+			string CaseCheck = "-1";
+			if (nParameter == 4)
+				CaseCheck = Request[3];
+			int nTrips = 0;
+			for (vector<Bus>::iterator it = this->BUS->begin(); it != this->BUS->end(); it++)
+				//cout << (*it).TIMEA << NowTime << (*it).TIMEB;
+				if ((*it).CODE == CodeTrip && (*it).TIMEA <= NowTime &&
+					(*it).TIMEB >= NowTime && (CaseCheck == "-1" || CaseCheck == (*it).CASE))
+					nTrips++;
+			return to_string(nTrips);
+
+		}
+
+		//RETURN THE NUMBER OF TRIPS THAT HAVE ENDED OF THE ROUTE WITH CODE <CODE> AT...
+		//...THE CONSIDERED TIME <TIME>.
+		else if (command == "CE")
+		{
+			string CodeTrip = Request[1];
+			int NowTime = stoi(Request[2]);
+			string CaseCheck = "-1";
+			if (nParameter == 4)
+				CaseCheck = Request[3];
+			int nTrips = 0;
+			for (vector<Bus>::iterator it = this->BUS->begin(); it != this->BUS->end(); it++)
+				if ((*it).CODE == CodeTrip && (*it).TIMEB < NowTime && (CaseCheck == "-1" || CaseCheck == (*it).CASE))
+					nTrips++;
+			return to_string(nTrips);
+
+		}
+
+		//RETURN THE LICENSE PLATE OF THE BUS TRIP OF THE ROUTE WITH CODE <CODE> WHICH HAS...
+		//... STARTED AT THE TIME CLOSEST TO THE CONSIDERED TIME <TIME>.
+		else if (command == "GS")
+		{
+			string CodeTrip = Request[1];
+			int NowTime = stoi(Request[2]);
+			string CaseCheck = "-1";
+			if (nParameter == 4)
+				CaseCheck = Request[3];
+			Bus target;
+			bool flag = 1;
+			for (vector<Bus>::iterator it = this->BUS->begin(); it != this->BUS->end(); it++)
+			{
+				if (CaseCheck == "-1")
+				{
+					if ((*it).TIMEA >= NowTime && (*it).CODE == CodeTrip && flag)
+					{
+						target = *it;
+						flag = 0;
+					}
+					else if ((*it).TIMEA >= NowTime && ((*it).TIMEA - NowTime) < (target.TIMEA - NowTime) && (*it).CODE == CodeTrip)
+						target = *it;
+					else if (((*it).TIMEA - NowTime) == (target.TIMEA - NowTime) && (*it).CODE == CodeTrip)
+					{
+						if ((*it).CASE == "0" && target.CASE == "1")
+							target = *it;
+					}
+				}
+				else
+				{
+					if ((*it).TIMEA >= NowTime && (*it).CASE == CaseCheck && (*it).CODE == CodeTrip && flag)
+					{
+						target = *it;
+						flag = 0;
+					}
+					else if ((*it).TIMEA >= NowTime && ((*it).TIMEA - NowTime) < (target.TIMEA - NowTime) && (*it).CODE == CodeTrip && (*it).CASE == CaseCheck)
+						target = *it;
+				}
+			}
+			return target.LP;
+		}
+
+		//RETURN THE LICENSE PLATE OF THE BUS TRIP OF THE ROUTE WITH CODE <CODE> WHICH HAS...
+		//... ENDED AT THE TIME CLOSEST TO THE CONSIDERED TIME <TIME>.
+		else if (command == "GE")
+		{
+			string CodeTrip = Request[1];
+			int NowTime = stoi(Request[2]);
+			string CaseCheck = "-1";
+			if (nParameter == 4)
+				CaseCheck = Request[3];
+			Bus target;
+			bool flag = 1;
+			for (vector<Bus>::iterator it = this->BUS->begin(); it != this->BUS->end(); it++)
+			{
+				if (CaseCheck == "-1")
+				{
+					if ((*it).TIMEB < NowTime && (*it).CODE == CodeTrip && flag)
+					{
+						target = *it;
+						flag = 0;
+					}
+					else if ((*it).TIMEB < NowTime && (NowTime - (*it).TIMEB) < (NowTime - target.TIMEB) && (*it).CODE == CodeTrip)
+						target = *it;
+					else if ((NowTime - (*it).TIMEB) == (NowTime - target.TIMEB) && (*it).CODE == CodeTrip)
+					{
+						if ((*it).CASE == target.CASE)
+							target = ((*it).TIMEA > target.TIMEA) ? *it : target;
+						else if ((*it).CASE == "0" && target.CASE == "1")
+							target = *it;
+					}
+				}
+				else
+				{
+					if ((*it).TIMEB < NowTime && (*it).CASE == CaseCheck && (*it).CODE == CodeTrip && flag)
+					{
+						target = *it;
+						flag = 0;
+					}
+					else if ((*it).TIMEB < NowTime && (NowTime - (*it).TIMEB) < (NowTime - target.TIMEB) && (*it).CODE == CodeTrip && (*it).CASE == CaseCheck)
+						target = *it;
+					else if ((*it).TIMEB < NowTime && (NowTime - (*it).TIMEB) == (NowTime - target.TIMEB) && (*it).CODE == CodeTrip && (*it).CASE == CaseCheck)
+						target = ((*it).TIMEA > target.TIMEA) ? *it : target;
+				}
+			}
+			return target.LP;
+		}
+
+		//IF REQUEST IS NOT COMPLETED, RETURN "-1"
+		return "-1";
+	}
+};
+#endif
+
+int main()
+{
+	BusSystem* bs = new BusSystem();
+	cout << bs->query("SQ 500") << endl;// 1
+	cout << bs->query("INS 50 50D1-23362 1234 5678") << endl; //1
+	cout << bs->query("INS 38 50D1-23343 0 1236 5679") << endl; //1
+	cout << bs->query("INS 50 50D1-23344 0 1237 5680") << endl; //1
+	cout << bs->query("INS 53 50D1-23345 0 1238 5681") << endl; //1
+	cout << bs->query("INS 50 50D1-23346 1 1239 5682") << endl; //1
+	cout << bs->query("INS 51 50D1-23347 1 1240 5683") << endl; //1
+	cout << bs->query("INS 50 50D1-23348 0 1241 5684") << endl; //1
+	cout << bs->query("INS 50 50D1-23349 1 1242 5685") << endl; //1
+	cout << bs->query("INS 49 50D1-23350 0 1243 5686") << endl; //1
+	cout << bs->query("CS 50 2134") << endl;					//1
+	cout << bs->query("GE 50 5685") << endl;					//1
+	cout << "[" << bs->query("DEL 49") << "]" << endl;
+	return 0;
+}

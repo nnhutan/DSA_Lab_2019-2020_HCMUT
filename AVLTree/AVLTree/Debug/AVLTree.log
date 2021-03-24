@@ -1,0 +1,3 @@
+﻿  AVLTree.cpp
+C:\Users\nhuta\Desktop\DAS_Lab\AVLTree\AVLTree\AVLTree.cpp(74,21): warning C4834: discarding return value of function with 'nodiscard' attribute
+  AVLTree.vcxproj -> C:\Users\nhuta\Desktop\DAS_Lab\AVLTree\Debug\AVLTree.exe

@@ -1,0 +1,4 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(491,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Project2.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Source.cpp
+Source.obj : error LNK2005: _main already defined in Single_Linked_List.obj
+C:\Users\nhuta\Desktop\Project2\Debug\Single Linked List.exe : fatal error LNK1169: one or more multiply defined symbols found

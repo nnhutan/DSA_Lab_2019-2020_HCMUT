@@ -1,0 +1,160 @@
+Adjacency *BFS(int v)
+    {
+        // v is a vertex we start BFS
+        queue<int>tan;
+		vector<int> mark(V);
+		tan.push(v);
+		Adjacency* arr = new Adjacency();
+		while (!tan.empty()) {
+			int n = tan.front();
+			int size = adj[n].getSize();
+			tan.pop();
+			arr->push(n);
+			mark[n] = 1;
+			for (int i = 0; i < size; i++) {
+				if (mark[adj[n].getElement(i)] == 0) {
+					tan.push(adj[n].getElement(i)); mark[adj[n].getElement(i)] = 1;
+				}
+			}
+
+		}
+		return arr;
+	
+	}
+////////////////////////////////////////////////////
+void helpDFS(int v, Adjacency*& arr, vector<int>& mark) {
+		mark[v] = 1;
+		arr->push(v);
+		for (int i = 0; i < adj[v].getSize(); i++)
+		{
+			if (mark[adj[v].getElement(i)]==0) {
+				helpDFS(adj[v].getElement(i), arr, mark);
+			}
+		}
+	}
+	Adjacency* DFS(int v) {
+		vector<int> mark(V);
+		stack<int> tan;
+		Adjacency* arr = new Adjacency();
+		helpDFS(v, arr, mark);
+		return arr;
+	}
+////////////////////////////////////////////////
+bool isCyclic()
+	{
+		// Student answer
+		vector<int> tan(V);
+		for (int i = 0; i < V; i++) {
+			//cout << adj[i].size();
+			tan[i] = adj[i].size();
+		}
+		//return 1;
+		while (1) {
+			bool flag = 1;
+			int j = 0;
+
+			for (auto it : tan) {
+				if (it != 0&&it!=-1) {
+					flag = 0; break;
+				}
+			}
+			if (flag) return 0;
+			for (auto it = tan.begin(); it != tan.end(); it++) {
+				if (*it == 0) {
+					flag = 1;
+					tan[j]--;
+					break;
+				}
+				j++;
+			}
+			if (!flag) return 1;
+			for (int i = 0; i < V; i++) {
+				if (find(adj[i].begin(), adj[i].end(), j) != adj[i].end()) {
+					tan[i]--;
+				}
+			}
+
+
+		}
+	}
+////////////////////////////////////
+void topohelp(int v, stack<int>&result, vector<int>&mark) {
+		mark[v] = 1;
+		for (int i = 0; i < adj[v].getSize(); i++)
+		{
+			if (mark[adj[v].getElement(i)] == 0) {
+				topohelp(adj[v].getElement(i), result, mark);
+			}
+		}
+		result.push(v);
+	}
+	void topologicalSort() {
+		stack<int> result; 
+		vector<int> mark(V);
+		for (int i = 0; i < V; i++)
+		{
+			if (mark[i] == 0) {
+				topohelp(i, result, mark);
+			}
+		}
+		while (!result.empty())
+		{
+			cout << result.top() <<" ";
+			result.pop();
+		}
+	}
+///////////////////////////////////////////////////
+int kruskalMST() {
+		// TODO: return weight of the minimum spanning tree.
+		sort(edges.begin(), edges.end());
+		vector<int>  mark(V);
+		for (int i = 0; i < V; i++) mark[i] = i;
+		int n = 0;
+		int count =0;
+		while (count!=V-1) {
+			if (mark[edges[0].second.first] != mark[edges[0].second.second]) {
+				n += edges[0].first;
+				int tmp = mark[edges[0].second.second];
+				int tmp2 = mark[edges[0].second.first];
+				mark[edges[0].second.second] = mark[edges[0].second.first];
+				for (int i = 0; i < V; i++) {
+					if (mark[i] == tmp) mark[i] = tmp2;
+				}
+				edges.erase(edges.begin());
+				count++;
+			}
+			else {
+				edges.erase(edges.begin());
+			}
+		}
+		return n;
+	}
+///////////////////////////////////////////////////////
+int Dijkstra(int** graph, int src, int dst) {
+	// TODO: return the length of shortest path from src to dst.
+	vector<int> distance(6);
+	for (int i = 0; i < 6; i++) {
+		distance[i] = 10000;
+	}
+	vector<int > mark(6);
+	distance[src] = 0;
+	mark[src] = 1;
+	while (mark[dst] != 1) {
+		for (int i = 0; i < 6; i++) {
+			if (graph[src][i] != 0&&mark[i]!=1) {
+				if (distance[i] > graph[src][i]+distance[src]) distance[i] = graph[src][i] + distance[src];
+			}
+		}
+		bool flag = 0;
+		int pos = 0;
+		for (int i = 0; i < 6; i++) {
+			if (flag == 0) {
+				if (mark[i] != 1) { pos = i; flag = 1; }
+			}
+			else if (mark[i] != 1 && distance[i] < distance[pos]) pos = i;
+		}
+		mark[pos] = 1;
+		src = pos;
+	}
+	return distance[dst];
+}

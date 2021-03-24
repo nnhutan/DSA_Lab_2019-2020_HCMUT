@@ -1,0 +1,285 @@
+=======================================================================================
+static T* Partition(T* start, T* end) {
+    // TODO: return the pointer which points to the pivot after rearrange the array.
+    	T* p = start;
+	T* i = start;
+	T* j = end;
+	while (i < j) {
+		do {
+			i = i + 1;
+		} while (*i < *p);
+		do {
+			j = j - 1;
+		} while (*j > * p);
+		//cout<<"Dinh Nhu Tan_1915040\n";
+		T temp = *i;
+		*i = *j;
+		*j = temp;
+	}
+	if (i >= j) {
+		T temp = *i;
+		*i = *j;
+		*j = temp;
+	}
+	T temp = *p;
+	*p = *j;
+	*j = temp;
+	cout << j - start << " ";
+	return j;
+}
+
+static void QuickSort(T* start, T* end) {
+    // TODO
+    // In this question, you must print out the index of pivot in subarray after everytime calling method Partition.
+    if (start < end) {
+		T* p = Partition(start, end);
+		QuickSort(start, p );
+		QuickSort(p + 1, end);
+	}
+}
+=================================================================================================================================
+static void merge(T* left, T* middle, T* right){
+    /*TODO*/
+    int n = right - left + 1;
+
+	T* temp = new T(n);
+	T* l = left, * m = middle + 1;
+	for (int i = 0; i < n; i++) {
+		if (l > middle) { temp[i] = *m; m++; }
+		else if (m > right) { temp[i] = *l; l++; }
+		else if (*l < *m) { temp[i] = *l; l++; }
+		else { temp[i] = *(m); m++; }
+		//cout<<"Dinh Nhu Tan_1915040\n";
+	}
+	for (int i = 0; i < n; i++) {
+		*(left + i) = temp[i];
+
+
+	}
+    Sorting::printArray(left, right);
+}
+static void mergeSort(T* start, T* end){
+    /*TODO*/
+    
+		if (start == end) return;
+		int n = ((end - start) / 2);
+		mergeSort(start, start + n);
+		mergeSort(start + n + 1, end);
+		merge(start, start + n, end);
+    
+}
+=============================================================================================================================
+template <class T>
+T *Sorting<T>::Partition(T *start, T *end)
+{
+    cout << "Quick sort: ";
+	printArray(start, end);
+	T* p = start;
+	T* i = start;
+	T* j = end;
+	while (i < j) {
+		do {
+			i = i + 1;
+		} while (*i < *p);
+		do {
+			j = j - 1;
+		} while (*j > * p);
+		//cout<<"Dinh Nhu Tan_1915040\n";
+		T temp = *i;
+		*i = *j;
+		*j = temp;
+	}
+	if (i >= j) {
+		T temp = *i;
+		*i = *j;
+		*j = temp;
+	}
+	T temp = *p;
+	*p = *j;
+	*j = temp;
+	return j;
+}
+
+template <class T>
+void Sorting<T>::insertionSort(T *start, T *end)
+{
+	cout << "Insertion sort: ";
+	printArray(start, end);
+	T* current = start+1;
+	while (current < end) {
+		T temp = *current;
+		T* walker = current - 1;
+		while (walker >= start && *walker > * current) {
+			//cout<<"Dinh Nhu Tan_1915040\n";
+			*(walker + 1) = *walker;
+			walker--;
+		}
+		*(walker + 1) = temp;
+		current++;
+	}
+}
+
+template <class T>
+void Sorting<T>::hybridQuickSort(T *start, T *end, int min_size)
+{
+
+	if (end-start>=min_size&&end>start ) {
+		T* p = Partition(start, end);
+		hybridQuickSort(start, p,min_size);
+		hybridQuickSort(p + 1, end,min_size);
+	}
+	else if(end>start){ insertionSort(start, end); }
+}
+==================================================================================================================================================
+ static void printArray(T *start, T *end)
+    {
+        int size = end - start;
+        for (int i = 0; i < size-1 ; i++)
+            cout << start[i] << " ";
+        cout << start[size - 1];
+        cout << endl;
+    }
+static void merge(T* start, T* middle, T* end) {
+    // TODO
+   	int n = end - start + 1;
+	T temp[n];
+	T *l = start, *m = middle + 1;
+	for (int i = 0; i < n; i++)
+	{
+		if (l > middle)
+		{
+			temp[i] = *m;
+			m++;
+		}
+		else if (m >= end)
+		{
+			temp[i] = *l;
+			l++;
+		}
+		else if (*l < *m)
+		{
+			temp[i] = *l;
+			l++;
+		}
+		else
+		{
+			temp[i] = *(m);
+			m++;
+		}
+	}
+	for (int i = 0; i < n; i++)
+	{
+		//cout<<"Dinh Nhu Tan_1915040\n";
+		*(start+i) = temp[i];
+	}
+    
+}
+
+static void InsertionSort(T* start, T* end) {
+    // TODO
+    T *current = start + 1;
+	while (current < end)
+	{
+		T temp = *current;
+		T *walker = current - 1;
+		while (walker >= start && *walker > temp)
+		{
+			*(walker + 1) = *walker;
+			walker = walker - 1;
+		}
+		*(walker + 1) = temp;
+		current++;
+	}
+}
+
+static void TimSort(T* start, T* end, int min_size) {
+    // TODO
+    // You must print out the array after using insertion sort and everytime calling method merge.
+  
+    if (end - start <= min_size||min_size<=0)
+	{
+		InsertionSort(start, end);
+		cout << "Insertion Sort: ";
+		printArray(start, end);
+		return;
+	}
+    T *s = start;
+	while (s < end)
+	{
+	T *e;
+		if (s + min_size >= end)
+			e = end;
+		else
+			e = s + min_size;
+		InsertionSort(s, e);
+		s = s + min_size;
+	}
+	cout << "Insertion Sort: ";
+	printArray(start, end);
+	//cout<<"Dinh Nhu Tan_1915040\n";
+	s = start;
+	int size = min_size;
+	int count = 1;
+	while (size < end - start)
+	{
+		while (s < end)
+		{
+			T *r;
+			if (s + (size * 2) > end)
+				r = end;
+			else
+				r = s + (size * 2);
+			merge(s, s + size - 1, r);
+			cout << "Merge " << count << ": ";
+			printArray(start, end);
+			s = s + (size * 2);
+			count+=1;
+		}
+		s = start;
+		size = size * 2;
+	}
+	
+}
+====================================================================================================================================================
+/* Your helping functions go here */
+bool isPermutation (string a, string b) {
+    int la = a.length(), lb = b.length();
+	//cout<<"Dinh Nhu Tan_1915040\n";
+	if (la != lb)
+		return 0;
+	else
+	{
+		for (int i = 0; i < la; i++)
+		{
+			for (int j = i + 1; j < la; j++)
+			{
+				if (a[j] < a[i])
+				{
+					char temp = a[i];
+					a[i] = a[j];
+					a[j] = temp;
+				}
+			}
+		}
+		for (int i = 0; i < lb; i++)
+		{
+			for (int j = i + 1; j < lb; j++)
+			{
+				if (b[j] < b[i])
+				{
+					char temp = b[i];
+					b[i] = b[j];
+					b[j] = temp;
+				}
+			}
+		}
+		if (a == b)
+			return 1;
+		else
+			return 0;
+			
+	}
+    
+    
+}
+=========================================================================================================================

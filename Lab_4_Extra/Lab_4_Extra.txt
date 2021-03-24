@@ -1,0 +1,140 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void add(T value) {
+        //TODO
+        if (root == NULL) root = new Node(value);
+        else {
+            Node* pWalk = root;
+            Node* parent = pWalk;
+            while (pWalk != NULL) {
+                parent = pWalk;
+                if (parent->value >= value) pWalk = pWalk->pLeft;
+                else pWalk = pWalk->pRight;
+		//cout<<"Dinh_Nhu_Tan_1915040"<<endl;
+            }
+            if (parent->value >= value) parent->pLeft = new Node(value);
+            else parent->pRight = new Node(value);
+        }
+
+    }
+    Node* findSmallest(Node* root)
+    {
+        Node* current = root;
+        /* loop down to find the leftmost leaf */
+        while (current->pLeft != NULL) {
+            current = current->pLeft;
+        }
+        return current;
+    }
+    Node* DeleteItems(Node* root, T data, int &t)
+    {
+        t++;
+        if (root == NULL) return root;
+        else if (root->value > data) root->pLeft = DeleteItems(root->pLeft, data,t);
+        else if (root->value < data) root->pRight = DeleteItems(root->pRight, data,t);
+        else {
+            if (root->pLeft == NULL) {
+                Node* temp = root->pRight;
+                delete root;
+                if (t == 1) { this->root = temp ; };
+                return temp;
+            }
+            else if (root->pRight == NULL) {
+                Node* temp = root->pLeft;
+                delete root;
+                if (t == 1) { this->root = temp; };
+                return temp;
+            }
+            else {
+                Node* temp = findSmallest(root->pRight);
+                root->value = temp->value;
+                root->pRight = DeleteItems(root->pRight, temp->value,t);
+            }
+        }
+        return root;
+    }
+    void deleteNode(T value) {
+        //TODO
+        int t = 0;
+        DeleteItems(root,value,t);
+
+    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Helping functions
+ int height(Node* r) {
+        if (r == NULL)
+            return -1;
+        else {
+            /* compute the height of each subtree */
+            int lheight = height(r->pLeft);
+            int rheight = height(r->pRight);
+
+            /* use the larger one */
+            if (lheight > rheight)
+                return (lheight + 1);
+            else return (rheight + 1);
+        }
+    }
+  int getDiameter(Node* root){
+   if(root==NULL) return 0;
+   if (root->pLeft == NULL && root->pRight == NULL) return 1;
+		//cout<<"Dinh_Nhu_Tan_1915040"<<endl;
+		else if (root->pLeft == NULL) return height(root->pRight) + 2;
+		else if (root->pRight == NULL)return height(root->pLeft) + 2;
+		else return height(root->pLeft) + height(root->pRight) + 3;
+}  
+int getDiameter(){
+    //TODO
+    return getDiameter(root);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool find(Node * root,T i) {
+		// TODO: return true if value i is in the tree; otherwise, return false.
+		Node* p = root;
+		while (p != NULL) {
+			if (p->value > i)p = p->pLeft;
+			else if (p->value < i)p = p->pRight;
+			else return 1;
+		}
+		return 0;
+	}
+	bool find(T i) {
+		// TODO: return true if value i is in the tree; otherwise, return false.
+		return find(root, i);
+	}
+	void sum(Node* root, T l, T r,T&sumsum) {
+		// TODO: return the sum of all element in the tree has value in range [l,r].
+		if (root == NULL) return;
+		sum(root->pLeft,l,r,sumsum);
+		if ((root->value - l) * (root->value - r) <= 0) sumsum += root->value;
+		//cout<<"Dinh_Nhu_Tan_1915040"<<endl;
+		sum(root->pRight,l,r,sumsum);
+	}
+	T sum(T l, T r) {
+		// TODO: return the sum of all element in the tree has value in range [l,r].
+		T sumsum = (T)0;
+		 sum(root, l, r, sumsum);
+		 return sumsum;
+	}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+T getMin(Node*root) {
+		//TODO: return the minimum values of nodes in the tree.
+		if (root->pLeft == NULL) return root->value;
+		else return getMin(root->pLeft);
+	}
+
+	T getMax(Node*root) {
+		//TODO: return the maximum values of nodes in the tree.
+		//cout<<"Dinh_Nhu_Tan_1915040"<<endl;
+		if (root->pRight == NULL) return root->value;
+		else return getMax(root->pRight);
+	}
+	T getMin() {
+		//TODO: return the minimum values of nodes in the tree.
+		return getMin(root);
+	}
+
+	T getMax() {
+		//TODO: return the maximum values of nodes in the tree.
+		return getMax(root);
+	}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////

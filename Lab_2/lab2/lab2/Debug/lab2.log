@@ -1,0 +1,22 @@
+﻿  Source.cpp
+C:\Users\nhuta\Desktop\lab2\lab2\Source.cpp(27,23): error C2039: 'removeAt': is not a member of 'DLinkedList<T>'
+          with
+          [
+              T=int
+          ]
+C:\Users\nhuta\Desktop\lab2\lab2\Source.cpp(7): message : see declaration of 'DLinkedList<T>'
+          with
+          [
+              T=int
+          ]
+C:\Users\nhuta\Desktop\lab2\lab2\Source.cpp(25): message : while compiling class template member function 'T Stack<T>::pop(void)'
+          with
+          [
+              T=int
+          ]
+C:\Users\nhuta\Desktop\lab2\lab2\Source.cpp(64): message : see reference to function template instantiation 'T Stack<T>::pop(void)' being compiled
+          with
+          [
+              T=int
+          ]
+C:\Users\nhuta\Desktop\lab2\lab2\Source.cpp(57): message : see reference to class template instantiation 'Stack<int>' being compiled
